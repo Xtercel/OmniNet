@@ -38,7 +38,7 @@ from torchvision.datasets import ImageFolder
 # the following is required for the lib to work in terminal env
 import matplotlib
 
-matplotlib.use("agg", warn=False, force=True)
+matplotlib.use("agg", force=True)
 from .cocoapi.coco import COCO
 
 
