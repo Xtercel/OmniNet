@@ -23,6 +23,8 @@ OmniNet training script.
 import argparse
 import os
 import torch
+import torch_npu
+from torch_npu.contrib import transfer_to_npu   
 import time
 import glob
 import numpy as np
