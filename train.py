@@ -323,7 +323,7 @@ if __name__ == '__main__':
     else:
         restore=0
         
-    shared_model=shared_model.to(0)
+    shared_model=shared_model.to("npu")
     shared_model.share_memory()
     counters = [Counter(restore) for i in range(len(tasks))]
     barrier = mp.Barrier(n_tasks)
