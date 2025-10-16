@@ -23,8 +23,11 @@ This repository contains the official Pytorch implementation for <a href="https:
 1. Clone the repo.
 2. Create & activate an environment using the provided file. (This will install all required dependencies including cuda and cudnn)
 ```
-$ conda env create -f environment.yml
-$ source activate omninet
+$ conda create -n OmniNet --clone PyTorch-2.1.0
+# 进入 OmniNet 环境
+$ conda activate OmniNet
+# 安装依赖
+pip install -r ./requirement.txt
 ```
 
 **Download datasets**
@@ -47,6 +50,11 @@ Pretrained models for the various single and multi-task models demonstrated in t
 ## Training
 
 The training script includes subroutines to train the model on the COCO Image captioning, VQA, HMDB action recognition, and PENN POS tagging. First, download all required datasets using `scripts/init_setup.py` as described above. The training script can be used to train both on a single task and asynchronously on multiple different tasks. It implements multi-GPU hogwild training to train a single model across multiple GPUs on multiple tasks. 
+
+```
+# 设置npu环境变量
+$ source ./scripts/env_npu.sh
+```
 
 ```
 $ python train.py <no. of training iterations> <task list> <batch sizes> --n_gpus <no. of GPUs> \

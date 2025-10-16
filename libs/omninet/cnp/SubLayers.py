@@ -41,6 +41,7 @@ class ScaledDotProductAttention(nn.Module):
         if k_gate is not None:
             attn=torch.mul(attn,k_gate)
         if mask is not None:
+            mask = mask.to(torch.bool)
             attn = attn.masked_fill(mask, -np.inf)
         attn = self.softmax(attn)
         attn = self.dropout(attn)

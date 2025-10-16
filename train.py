@@ -329,20 +329,38 @@ if __name__ == '__main__':
     barrier = mp.Barrier(n_tasks)
     start = int(restore / n_jobs)
     # Declare training processes for multi-gpu hogwild training
-    processes = []
-    for i in range(n_tasks):
-        #If more than one GPU is used, use first GPU only for model sharing
-        if n_gpus>1:
-            gpu_id=i%n_gpus
-        else:
-            gpu_id=0
-        process = mp.Process(target=train, args=(shared_model, tasks[i % len(tasks)], batch_sizes[i % len(tasks)],
-                                                 int(n_iters / n_jobs),
-                                                 gpu_id, start, restore, counters[i % len(tasks)], barrier,
-                                                 (save_interval if i == 0 else None),
-                                                 (eval_interval if i < len(tasks) else None),
-                                                 (True if i < len(tasks) else False)))
-        process.start()
-        processes.append(process)
-    for p in processes:
-        p.join()
+
+
+    # npu 无法支持多进程共享内存训练，改用单进程训练
+    gpu_id = 0
+    train(
+        shared_model=shared_model,  # 直接使用模型，无需共享内存
+        task=tasks[0],  # 使用第一个任务
+        batch_size=batch_sizes[0 % len(batch_sizes)],  # 对应的batch_size
+        train_steps=n_iters,  # 全部迭代次数（不再分割）
+        gpu_id=gpu_id,  # GPU ID
+        start=start,  # 其他参数保持不变
+        restore=restore,
+        counter=counters[0 % len(counters)],
+        barrier=None,  # 单进程无需屏障
+        save_interval=save_interval,  # 保留保存间隔
+        eval_interval=eval_interval  # 保留评估间隔
+    )
+
+    # processes = []
+    # for i in range(n_tasks):
+    #     #If more than one GPU is used, use first GPU only for model sharing
+    #     if n_gpus>1:
+    #         gpu_id=i%n_gpus
+    #     else:
+    #         gpu_id=0
+    #     process = mp.Process(target=train, args=(shared_model, tasks[i % len(tasks)], batch_sizes[i % len(tasks)],
+    #                                              int(n_iters / n_jobs),
+    #                                              gpu_id, start, restore, counters[i % len(tasks)], barrier,
+    #                                              (save_interval if i == 0 else None),
+    #                                              (eval_interval if i < len(tasks) else None),
+    #                                              (True if i < len(tasks) else False)))
+    #     process.start()
+    #     processes.append(process)
+    # for p in processes:
+    #     p.join()
